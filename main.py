@@ -19,21 +19,23 @@ def main():
         print(str(err).capitalize() + "!")
         sys.exit(2)
     
-    # Default Settings    
-    threads = 1
-    audio = False
-    window = False
+    # Default Options
+    options = {
+        "threads": 1,
+        "audio": False,
+        "window": False
+    }
     
     for o, a in opts:
         if o in ("-t", "--threads"):
             if(a.isnumeric() == False):
                 print("Option -t must be an integer!")
                 sys.exit(2)
-            threads = int(a)
-        elif o == "audio":
-            audio = True
-        elif o == "window":
-            window = True
+            options["threads"] = int(a)
+        elif o == "--audio":
+            options["audio"] = True
+        elif o == "--window":
+            options["window"] = True
         else:
             assert False, "unhandled option"
     
@@ -67,6 +69,10 @@ def main():
     
     if(("spotify" in req) == False) or (("playlist" in req) == False):
         print("Please enter a valid playlist URL!")
+        sys.exit(2)
+        
+    if(len(userlist) < options["threads"]):
+        print(f"Can't start {options['threads']} threads with {len(userlist)} user(s)!")
         sys.exit(2)
 
 if __name__ == "__main__":
