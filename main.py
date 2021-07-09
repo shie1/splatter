@@ -1,4 +1,10 @@
-import sys, getopt, os, mimetypes
+import sys, getopt, os, mimetypes, requests
+from requests import exceptions
+
+try: requests.get("https://google.com")
+except requests.exceptions.ConnectionError:
+    print("No internet access!")
+    sys.exit(2)
 
 def nonblank_lines(f):
     for l in f:
@@ -8,18 +14,27 @@ def nonblank_lines(f):
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:", ["threads="])
+        opts, args = getopt.getopt(sys.argv[1:], "t:", ["threads=","audio","window"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err).capitalize() + "!")
         sys.exit(2)
+    
+    # Default Settings    
     threads = 1
+    audio = False
+    window = False
+    
     for o, a in opts:
         if o in ("-t", "--threads"):
             if(a.isnumeric() == False):
                 print("Option -t must be an integer!")
                 sys.exit(2)
             threads = int(a)
+        elif o == "audio":
+            audio = True
+        elif o == "window":
+            window = True
         else:
             assert False, "unhandled option"
     
@@ -39,6 +54,21 @@ def main():
 
     userlist = list(nonblank_lines(open(userlist, "r")))
     
+    if(len(args) < 2):
+        print("Please provide a Spotify playlist URL!")
+        sys.exit(2)
+    
+    url = args[1] 
+    
+    try:
+        try: req = requests.get(url).text
+        except requests.exceptions.MissingSchema: req = requests.get("https://" + url).text
+        except requests.exceptions.ConnectionError: req = ""
+    except requests.exceptions.ConnectionError: req = ""
+    
+    if(("spotify" in req) == False) or (("playlist" in req) == False):
+        print("Please enter a valid playlist URL!")
+        sys.exit(2)
 
 if __name__ == "__main__":
     main()
