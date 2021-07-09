@@ -1,5 +1,4 @@
 import sys, getopt, os, mimetypes, requests
-from requests import exceptions
 
 try: requests.get("https://google.com")
 except requests.exceptions.ConnectionError:
