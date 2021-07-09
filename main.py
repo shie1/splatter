@@ -1,10 +1,5 @@
 import sys, getopt, os, mimetypes, requests
 
-try: requests.get("https://google.com")
-except requests.exceptions.ConnectionError:
-    print("No internet access!")
-    sys.exit(2)
-
 def nonblank_lines(f):
     for l in f:
         line = l.rstrip()
@@ -12,6 +7,11 @@ def nonblank_lines(f):
             yield line
 
 def main():
+    try: requests.get("https://google.com")
+    except requests.exceptions.ConnectionError:
+        print("No internet access!")
+        sys.exit(2)
+    
     try:
         opts, args = getopt.getopt(sys.argv[1:], "t:", ["threads=","audio","window"])
     except getopt.GetoptError as err:
