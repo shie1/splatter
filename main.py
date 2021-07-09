@@ -1,4 +1,10 @@
-import sys, getopt, os
+import sys, getopt, os, mimetypes
+
+def nonblank_lines(f):
+    for l in f:
+        line = l.rstrip()
+        if line:
+            yield line
 
 def main():
     try:
@@ -26,6 +32,13 @@ def main():
     if(os.path.exists(userlist) == False):
         print("Userlist path invalid!")
         sys.exit(2)
+
+    if(("text/plain" in mimetypes.guess_type(userlist)) == False):
+        print("Userlist must be plain text!")
+        sys.exit(2)
+
+    userlist = list(nonblank_lines(open(userlist, "r")))
+    
 
 if __name__ == "__main__":
     main()
