@@ -1,4 +1,5 @@
 import sys, getopt, os, mimetypes, requests
+import spotify_spammer as spotify
 
 def nonblank_lines(f):
     for l in f:
@@ -15,7 +16,6 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "t:", ["threads=","audio","window"])
     except getopt.GetoptError as err:
-        # print help information and exit:
         print(str(err).capitalize() + "!")
         sys.exit(2)
     
@@ -74,6 +74,8 @@ def main():
     if(len(userlist) < options["threads"]):
         print(f"Can't start {options['threads']} threads with {len(userlist)} user(s)!")
         sys.exit(2)
+
+    spotify.start(options,userlist,url)
 
 if __name__ == "__main__":
     main()
