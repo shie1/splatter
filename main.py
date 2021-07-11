@@ -14,7 +14,7 @@ def main():
         sys.exit(2)
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:l:", ["threads=","audio","window","login="])
+        opts, args = getopt.getopt(sys.argv[1:], "t:l:", ["threads=","audio","window","login=","tracking"])
     except getopt.GetoptError as err:
         print(str(err).capitalize() + "!")
         sys.exit(2)
@@ -23,8 +23,9 @@ def main():
     options = {
         "threads": 1,
         "audio": False,
-        "window": False,
-        "login": False
+        "headless": False,
+        "login": False,
+        "tracking": False
     }
     
     for o, a in opts:
@@ -35,8 +36,8 @@ def main():
             options["threads"] = int(a)
         elif o == "--audio":
             options["audio"] = True
-        elif o == "--window":
-            options["window"] = True
+        elif o == "--headless":
+            options["headless"] = True
         elif o in ("-l", "--login"):
             options["login"] = True
             
@@ -51,6 +52,9 @@ def main():
                 sys.exit(2)
 
             options["userlist"] = list(nonblank_lines(open(userlist, "r")))
+        elif o == "--tracking":
+            options["tracking"] == True
+            print("NOTE: Tracking is still in development, currently it does nothing!\n")
         else:
             assert False, "unhandled option"
     
@@ -69,10 +73,12 @@ def main():
     if(("spotify" in req) == False) or (("playlist" in req) == False):
         print("Please enter a valid playlist URL!")
         sys.exit(2)
-        
-    if(len(userlist) < options["threads"]) and (options["login"] == True):
-        print(f"Can't start {options['threads']} threads with {len(userlist)} user(s)!")
-        sys.exit(2)
+    
+    try:
+        if(len(options["userlist"]) < options["threads"]):
+            print(f"Can't start {options['threads']} threads with {len(userlist)} user(s)!")
+            sys.exit(2)
+    except KeyError: ""
 
     spotify.start(options,url)
 

@@ -2,10 +2,8 @@ from selenium import webdriver
 from time import sleep
 from urllib import parse
 from threading import Thread
-from sys import exit
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from random import uniform
 
 def check_exists(css, driver):
@@ -32,7 +30,7 @@ def smooth_type(text, element):
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.utils import ChromeType
 
-def quickplay(user, password, playlist, driver):
+def quickplay(user, password, playlist, driver, options):
     driver.delete_all_cookies()
     driver.get("https://www.google.com/search?q=spotify")
     sleep(2)
@@ -94,7 +92,7 @@ def quickplay(user, password, playlist, driver):
 def browser(options):
     chrome_options = webdriver.ChromeOptions()
     if(options["audio"] == False): chrome_options.add_argument("--mute-audio")
-    if(options["window"] == False): chrome_options.add_argument("--headless")
+    if(options["headless"] == True): chrome_options.add_argument("--headless")
     return webdriver.Chrome(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install(),chrome_options=chrome_options)
 
 def start(options,playlist):
@@ -107,4 +105,4 @@ def start(options,playlist):
         else:
             user, password = None, None
 
-        Thread(target=quickplay,args=(user,password,playlist,browser(options))).start()
+        Thread(target=quickplay,args=(user,password,playlist,browser(options),options)).start()
