@@ -6,6 +6,7 @@ from sys import exit
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from random import uniform
 
 def check_exists(css, driver):
     try:
@@ -20,6 +21,13 @@ def check_exists_xpath(xpath, driver):
     except NoSuchElementException:
         return False
     return True
+
+def smooth_type(text, element):
+    text = text.split()
+    for letter in text:
+        element.send_keys(letter)
+        sleep(uniform(0.5,1))
+    return
 
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.utils import ChromeType
@@ -36,10 +44,13 @@ def quickplay(user, password, playlist, driver):
         button_elem = driver.find_element_by_class_name("btn-green")
 
         user_elem.clear()
+        sleep(uniform(0.1,0.25))
         password_elem.clear()
+        sleep(uniform(0.1,0.25))
 
-        user_elem.send_keys(user)
-        password_elem.send_keys(password)
+        smooth_type(user, user_elem)
+        smooth_type(password, password_elem)
+        sleep(uniform(0.5,1))
         button_elem.click()
     
     while True:
