@@ -23,7 +23,8 @@ def main():
     options = {
         "threads": 1,
         "audio": False,
-        "window": False
+        "window": False,
+        "login": False
     }
     
     for o, a in opts:
@@ -36,30 +37,28 @@ def main():
             options["audio"] = True
         elif o == "--window":
             options["window"] = True
+        elif o in ("-l", "--login"):
+            options["login"] = True
+            
+            userlist = a
+            
+            if(os.path.exists(userlist) == False):
+                print("Userlist path invalid!")
+                sys.exit(2)
+
+            if(("text/plain" in mimetypes.guess_type(userlist)) == False):
+                print("Userlist must be plain text!")
+                sys.exit(2)
+
+            options["userlist"] = list(nonblank_lines(open(userlist, "r")))
         else:
             assert False, "unhandled option"
     
-    if(len(args) == 0):
-        print("Please provide a userlist path!")
-        sys.exit(2)
-    
-    userlist = args[0]
-    
-    if(os.path.exists(userlist) == False):
-        print("Userlist path invalid!")
-        sys.exit(2)
-
-    if(("text/plain" in mimetypes.guess_type(userlist)) == False):
-        print("Userlist must be plain text!")
-        sys.exit(2)
-
-    userlist = list(nonblank_lines(open(userlist, "r")))
-    
-    if(len(args) < 2):
+    if(len(args) < 1):
         print("Please provide a Spotify playlist URL!")
         sys.exit(2)
     
-    url = args[1] 
+    url = args[0]
     
     try:
         try: req = requests.get(url).text
@@ -71,11 +70,11 @@ def main():
         print("Please enter a valid playlist URL!")
         sys.exit(2)
         
-    if(len(userlist) < options["threads"]):
+    if(len(userlist) < options["threads"]) and (options["login"] == True):
         print(f"Can't start {options['threads']} threads with {len(userlist)} user(s)!")
         sys.exit(2)
 
-    spotify.start(options,userlist,url)
+    spotify.start(options,url)
 
 if __name__ == "__main__":
     main()

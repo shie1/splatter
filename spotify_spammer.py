@@ -30,6 +30,18 @@ def quickplay(user, password, playlist, driver):
     sleep(2)
     driver.get("https://accounts.spotify.com/en/login?continue=" + parse.quote(playlist.encode("utf-8")))
     
+    if (user != None) and (password != None):
+        user_elem = driver.find_element_by_id("login-username")
+        password_elem = driver.find_element_by_id("login-password")
+        button_elem = driver.find_element_by_class_name("btn-green")
+
+        user_elem.clear()
+        password_elem.clear()
+
+        user_elem.send_keys(user)
+        password_elem.send_keys(password)
+        button_elem.click()
+    
     while True:
         if(check_exists("#onetrust-accept-btn-handler", driver) == True):
             try:
@@ -74,11 +86,14 @@ def browser(options):
     if(options["window"] == False): chrome_options.add_argument("--headless")
     return webdriver.Chrome(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install(),chrome_options=chrome_options)
 
-def start(options,userlist,playlist):
+def start(options,playlist):
     for x in range(0,int(options["threads"])):
-        u = userlist[x].split(":")
-        if(len(u) != 2):
-            continue
-        user, password = u
+        if(options["login"] == True):
+            u = options["userlist"][x].split(":")
+            if(len(u) != 2):
+                continue
+            user, password = u
+        else:
+            user, password = None, None
 
         Thread(target=quickplay,args=(user,password,playlist,browser(options))).start()
