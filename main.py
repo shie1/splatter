@@ -14,7 +14,7 @@ def main():
         sys.exit(2)
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:l:", ["threads=","audio","window","login=","tracking"])
+        opts, args = getopt.getopt(sys.argv[1:], "t:l:", ["threads=","audio","headless","login=","tracking"])
     except getopt.GetoptError as err:
         print(str(err).capitalize() + "!")
         sys.exit(2)
