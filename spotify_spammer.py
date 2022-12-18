@@ -7,7 +7,9 @@ from selenium import webdriver
 from random import uniform
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
+from os import system
 
 
 def check_exists(by, select, driver):
@@ -19,19 +21,26 @@ def check_exists(by, select, driver):
 
 
 def smooth_type(text, element):
-    text = text.split()
-    for letter in text:
-        element.send_keys(letter)
-        sleep(uniform(0.5, 1))
+    for i in range(len(text)):
+        letter = text[i]
+        if(letter == "@"):
+            system("echo %s| clip" % "@".strip())
+            element.send_keys(Keys.CONTROL, "v")
+        else:
+            element.send_keys(letter)
+        sleep(uniform(0.1, 0.3))
     return
 
 
 def quickplay(user, password, playlist, driver, options):
+    ac = ActionChains(driver)
     driver.delete_all_cookies()
     driver.get("https://www.google.com/search?q=spotify")
     sleep(2)
     driver.get("https://accounts.spotify.com/en/login?continue=" +
                parse.quote(playlist.encode("utf-8")))
+
+    sleep(1)
 
     if (user != None) and (password != None):
         user_elem = driver.find_element(By.ID, "login-username")
@@ -44,6 +53,7 @@ def quickplay(user, password, playlist, driver, options):
         sleep(uniform(0.1, 0.25))
 
         smooth_type(user, user_elem)
+        sleep(uniform(0.1, 0.25))
         smooth_type(password, password_elem)
         sleep(uniform(0.5, 1))
         button_elem.click()
