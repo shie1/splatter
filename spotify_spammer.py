@@ -102,7 +102,6 @@ def quickplay(user, password, playlist, driver, options):
             mins, secs = time.split(":")
             mins = int(mins)
             secs = int(secs)
-            print(mins, secs)
             if((mins != 0) == True) or ((secs > 35) == True):
                 driver.find_element(By.TAG_NAME,
                                     "body").send_keys(Keys.ALT, Keys.ARROW_RIGHT)
