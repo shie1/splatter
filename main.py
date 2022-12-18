@@ -21,7 +21,7 @@ def main():
         sys.exit(2)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:l:", [
+        opts, args = getopt.getopt(sys.argv[1:], "aht:l:", [
                                    "threads=", "audio", "headless", "login=", "tracking"])
     except getopt.GetoptError as err:
         print(str(err).capitalize() + "!")
@@ -42,9 +42,9 @@ def main():
                 print("Option -t must be an integer!")
                 sys.exit(2)
             options["threads"] = int(a)
-        elif o == "--audio":
+        elif o in ("-a", "--audio"):
             options["audio"] = True
-        elif o == "--headless":
+        elif o in ("-h", "--headless"):
             options["headless"] = True
         elif o in ("-l", "--login"):
             options["login"] = True
@@ -61,7 +61,6 @@ def main():
 
             options["userlist"] = list(nonblank_lines(open(userlist, "r")))
         elif o == "--tracking":
-            options["tracking"] == True
             print("NOTE: Tracking is still in development, currently it does nothing!\n")
         else:
             assert False, "unhandled option"
@@ -89,7 +88,7 @@ def main():
     try:
         if(len(options["userlist"]) < options["threads"]):
             print(
-                f"Can't start {options['threads']} threads with {len(userlist)} user(s)!")
+                f"Can't start {options['threads']} threads with {len(options['userlist'])} user(s)!")
             sys.exit(2)
     except KeyError:
         ""

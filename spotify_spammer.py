@@ -7,6 +7,7 @@ from selenium import webdriver
 from random import uniform
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+import undetected_chromedriver as uc
 
 
 def check_exists(by, select, driver):
@@ -86,7 +87,6 @@ def quickplay(user, password, playlist, driver, options):
         try:
             time = driver.find_element(By.CSS_SELECTOR,
                                        "div.playback-bar__progress-time-elapsed").text
-            print(time)
             mins, secs = time.split(":")
             mins = int(mins)
             secs = int(secs)
@@ -106,7 +106,7 @@ def browser(options):
         chrome_options.add_argument("--mute-audio")
     if(options["headless"] == True):
         chrome_options.add_argument("--headless")
-    return webdriver.Chrome("chromedriver.exe", chrome_options=chrome_options)
+    return uc.Chrome(chrome_options)
 
 
 def start(options, playlist):
