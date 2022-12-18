@@ -28,7 +28,7 @@ def smooth_type(text, element):
             element.send_keys(Keys.CONTROL, "v")
         else:
             element.send_keys(letter)
-        sleep(uniform(0.1, 0.3))
+        sleep(uniform(0.05, 0.1))
     return
 
 
@@ -43,6 +43,7 @@ def quickplay(user, password, playlist, driver, options):
     sleep(1)
 
     if (user != None) and (password != None):
+        print("login start")
         user_elem = driver.find_element(By.ID, "login-username")
         password_elem = driver.find_element(By.ID, "login-password")
         button_elem = driver.find_element(By.ID, "login-button")
@@ -59,6 +60,7 @@ def quickplay(user, password, playlist, driver, options):
         button_elem.click()
 
     while True:
+        print("logged in")
         if(check_exists(By.CSS_SELECTOR, "#onetrust-accept-btn-handler", driver) == True):
             try:
                 driver.find_element(
@@ -116,7 +118,16 @@ def browser(options):
         chrome_options.add_argument("--mute-audio")
     if(options["headless"] == True):
         chrome_options.add_argument("--headless")
-    return uc.Chrome(chrome_options)
+    driver = uc.Chrome(chrome_options)
+    if(options["headless"] == True):
+        sleep(2)
+        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """ Object.defineProperty(window, 'navigator', { value: new Proxy(navigator, { has: (target, key) => (key === 'webdriver' ? false : key in target), get: (target, key) => key === 'webdriver' ? false : typeof target[key] === 'function' ? target[key].bind(target) : target[key] }) }); """}, ) 
+        driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": driver.execute_script("return navigator.userAgent").replace("Headless", "")}, ) 
+        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """ Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 1 })"""}, ) 
+        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": "const newProto = navigator.__proto__;" "delete newProto.webdriver;" "navigator.__proto__ = newProto;"}, )
+        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+                               "source": """ Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] }); """},)
+    return driver
 
 
 def start(options, playlist):
