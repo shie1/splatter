@@ -43,7 +43,6 @@ def quickplay(user, password, playlist, driver, options):
     sleep(1)
 
     if (user != None) and (password != None):
-        print("login start")
         user_elem = driver.find_element(By.ID, "login-username")
         password_elem = driver.find_element(By.ID, "login-password")
         button_elem = driver.find_element(By.ID, "login-button")
@@ -60,7 +59,6 @@ def quickplay(user, password, playlist, driver, options):
         button_elem.click()
 
     while True:
-        print("logged in")
         if(check_exists(By.CSS_SELECTOR, "#onetrust-accept-btn-handler", driver) == True):
             try:
                 driver.find_element(
