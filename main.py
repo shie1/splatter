@@ -21,8 +21,8 @@ def main():
         sys.exit(2)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "aht:l:s:", [
-                                   "threads=", "audio", "headless", "login=", "tracking", "skip="])
+        opts, args = getopt.getopt(sys.argv[1:], "aht:u:s:", [
+                                   "threads=", "audio", "headless", "userlist=", "tracking", "skip="])
     except getopt.GetoptError as err:
         print(str(err).capitalize() + "!")
         sys.exit(2)
@@ -32,9 +32,9 @@ def main():
         "threads": 1,
         "audio": False,
         "headless": False,
-        "login": False,
+        "userlist": False,
         "tracking": False,
-        "skip": False
+        "skip": False,
     }
 
     for o, a in opts:
@@ -47,25 +47,21 @@ def main():
             options["audio"] = True
         elif o in ("-h", "--headless"):
             options["headless"] = True
-        elif o in ("-l", "--login"):
-            options["login"] = True
         elif o in ("-s", "--skip"):
             if(a.isnumeric() == False):
                 print(f"Option {o} must be an integer!")
                 sys.exit(2)
             options["skip"] = int(a)
-
-            userlist = a
-
-            if(os.path.exists(userlist) == False):
+        elif o in ("-u", "--userlist"):
+            if(os.path.exists(a) == False):
                 print("Userlist path invalid!")
                 sys.exit(2)
 
-            if(("text/plain" in mimetypes.guess_type(userlist)) == False):
+            if(("text/plain" in mimetypes.guess_type(a)) == False):
                 print("Userlist must be plain text!")
                 sys.exit(2)
 
-            options["userlist"] = list(nonblank_lines(open(userlist, "r")))
+            options["userlist"] = list(nonblank_lines(open(a, "r")))
         elif o == "--tracking":
             print("NOTE: Tracking is still in development, currently it does nothing!\n")
         else:
@@ -89,6 +85,10 @@ def main():
 
     if(("spotify" in req) == False):
         print("Please enter a valid playlist URL!")
+        sys.exit(2)
+
+    if(options["userlist"] == False):
+        print("Please provide a userlist! -u")
         sys.exit(2)
 
     try:

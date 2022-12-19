@@ -33,7 +33,6 @@ def smooth_type(text, element):
 
 
 def quickplay(user, password, playlist, driver, options):
-    ac = ActionChains(driver)
     driver.delete_all_cookies()
     driver.get("https://www.google.com/search?q=spotify")
     sleep(2)
@@ -134,13 +133,10 @@ def browser(options):
 
 def start(options, playlist):
     for x in range(0, int(options["threads"])):
-        if(options["login"] == True):
-            u = options["userlist"][x].split(":")
-            if(len(u) != 2):
-                continue
-            user, password = u
-        else:
-            user, password = None, None
+        u = options["userlist"][x].split(":")
+        if(len(u) != 2):
+            continue
+        user, password = u
 
         Thread(target=quickplay, args=(user, password,
                playlist, browser(options), options)).start()
