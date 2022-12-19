@@ -94,17 +94,18 @@ def quickplay(user, password, playlist, driver, options):
                 ""
 
         # Skip
-        try:
-            time = driver.find_element(By.CSS_SELECTOR,
-                                       "div.playback-bar__progress-time-elapsed").text
-            mins, secs = time.split(":")
-            mins = int(mins)
-            secs = int(secs)
-            if((mins != 0) == True) or ((secs > 35) == True):
-                driver.find_element(By.TAG_NAME,
-                                    "body").send_keys(Keys.ALT, Keys.ARROW_RIGHT)
-        except NoSuchElementException:
-            ""
+        if(options["skip"] != False):
+            try:
+                time = driver.find_element(By.CSS_SELECTOR,
+                                           "div.playback-bar__progress-time-elapsed").text
+                mins, secs = time.split(":")
+                mins = int(mins)
+                secs = int(secs)
+                if((mins != 0) == True) or ((secs > options["skip"]) == True):
+                    driver.find_element(By.TAG_NAME,
+                                        "body").send_keys(Keys.ALT, Keys.ARROW_RIGHT)
+            except NoSuchElementException:
+                ""
 
         sleep(5)
 
@@ -118,10 +119,14 @@ def browser(options):
     driver = uc.Chrome(chrome_options)
     if(options["headless"] == True):
         sleep(2)
-        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """ Object.defineProperty(window, 'navigator', { value: new Proxy(navigator, { has: (target, key) => (key === 'webdriver' ? false : key in target), get: (target, key) => key === 'webdriver' ? false : typeof target[key] === 'function' ? target[key].bind(target) : target[key] }) }); """}, ) 
-        driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": driver.execute_script("return navigator.userAgent").replace("Headless", "")}, ) 
-        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """ Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 1 })"""}, ) 
-        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": "const newProto = navigator.__proto__;" "delete newProto.webdriver;" "navigator.__proto__ = newProto;"}, )
+        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                               "source": """ Object.defineProperty(window, 'navigator', { value: new Proxy(navigator, { has: (target, key) => (key === 'webdriver' ? false : key in target), get: (target, key) => key === 'webdriver' ? false : typeof target[key] === 'function' ? target[key].bind(target) : target[key] }) }); """}, )
+        driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": driver.execute_script(
+            "return navigator.userAgent").replace("Headless", "")}, )
+        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                               "source": """ Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 1 })"""}, )
+        driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                               "source": "const newProto = navigator.__proto__;" "delete newProto.webdriver;" "navigator.__proto__ = newProto;"}, )
         driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
                                "source": """ Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] }); """},)
     return driver

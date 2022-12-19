@@ -21,8 +21,8 @@ def main():
         sys.exit(2)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "aht:l:", [
-                                   "threads=", "audio", "headless", "login=", "tracking"])
+        opts, args = getopt.getopt(sys.argv[1:], "aht:l:s:", [
+                                   "threads=", "audio", "headless", "login=", "tracking", "skip="])
     except getopt.GetoptError as err:
         print(str(err).capitalize() + "!")
         sys.exit(2)
@@ -33,13 +33,14 @@ def main():
         "audio": False,
         "headless": False,
         "login": False,
-        "tracking": False
+        "tracking": False,
+        "skip": False
     }
 
     for o, a in opts:
         if o in ("-t", "--threads"):
             if(a.isnumeric() == False):
-                print("Option -t must be an integer!")
+                print(f"Option {o} must be an integer!")
                 sys.exit(2)
             options["threads"] = int(a)
         elif o in ("-a", "--audio"):
@@ -48,6 +49,11 @@ def main():
             options["headless"] = True
         elif o in ("-l", "--login"):
             options["login"] = True
+        elif o in ("-s", "--skip"):
+            if(a.isnumeric() == False):
+                print(f"Option {o} must be an integer!")
+                sys.exit(2)
+            options["skip"] = int(a)
 
             userlist = a
 
