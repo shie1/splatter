@@ -21,8 +21,8 @@ def main():
         sys.exit(2)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "aht:u:s:", [
-                                   "threads=", "audio", "headless", "userlist=", "tracking", "skip="])
+        opts, args = getopt.getopt(sys.argv[1:], "t:h:u:", [
+                                   "threads=", "headless", "userlist=", "skip="])
     except getopt.GetoptError as err:
         print(str(err).capitalize() + "!")
         sys.exit(2)
@@ -33,8 +33,8 @@ def main():
         "audio": False,
         "headless": False,
         "userlist": False,
-        "tracking": False,
         "skip": False,
+        "playlist": ""
     }
 
     for o, a in opts:
@@ -43,15 +43,8 @@ def main():
                 print(f"Option {o} must be an integer!")
                 sys.exit(2)
             options["threads"] = int(a)
-        elif o in ("-a", "--audio"):
-            options["audio"] = True
         elif o in ("-h", "--headless"):
             options["headless"] = True
-        elif o in ("-s", "--skip"):
-            if(a.isnumeric() == False):
-                print(f"Option {o} must be an integer!")
-                sys.exit(2)
-            options["skip"] = int(a)
         elif o in ("-u", "--userlist"):
             if(os.path.exists(a) == False):
                 print("Userlist path invalid!")
@@ -62,30 +55,8 @@ def main():
                 sys.exit(2)
 
             options["userlist"] = list(nonblank_lines(open(a, "r")))
-        elif o == "--tracking":
-            print("NOTE: Tracking is still in development, currently it does nothing!\n")
         else:
             assert False, "unhandled option"
-
-    if(len(args) < 1):
-        print("Please provide a Spotify playlist URL!")
-        sys.exit(2)
-
-    url = args[0]
-
-    try:
-        try:
-            req = requests.get(url).text
-        except requests.exceptions.MissingSchema:
-            req = requests.get("https://" + url).text
-        except requests.exceptions.ConnectionError:
-            req = ""
-    except requests.exceptions.ConnectionError:
-        req = ""
-
-    if(("spotify" in req) == False):
-        print("Please enter a valid playlist URL!")
-        sys.exit(2)
 
     if(options["userlist"] == False):
         print("Please provide a userlist! -u")
@@ -99,7 +70,7 @@ def main():
     except KeyError:
         ""
 
-    spotify.start(options, url)
+    spotify.start(options, spotify.testlogin)
 
 
 if __name__ == "__main__":

@@ -7,9 +7,9 @@ from selenium import webdriver
 from random import uniform
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 from os import system
+from math import floor
 
 
 def check_exists(by, select, driver):
@@ -32,15 +32,12 @@ def smooth_type(text, element):
     return
 
 
-def quickplay(user, password, playlist, driver, options):
+def login(user, password, driver, redirect=""):
     driver.delete_all_cookies()
-    driver.get("https://www.google.com/search?q=spotify")
-    sleep(2)
     driver.get("https://accounts.spotify.com/en/login?continue=" +
-               parse.quote(playlist.encode("utf-8")))
+               parse.quote(redirect.encode("utf-8")))
 
     sleep(1)
-
     if (user != None) and (password != None):
         user_elem = driver.find_element(By.ID, "login-username")
         password_elem = driver.find_element(By.ID, "login-password")
@@ -56,6 +53,25 @@ def quickplay(user, password, playlist, driver, options):
         smooth_type(password, password_elem)
         sleep(uniform(0.5, 1))
         button_elem.click()
+
+    sleep(2)
+    if driver.current_url == "https://accounts.spotify.com/en/login?continue=" + parse.quote(redirect.encode("utf-8")):
+        raise Exception("Invalid login")
+
+
+def testlogin(u, driver, options):
+    for x in range(0, len(u)):
+        user, password = u[x]
+        try:
+            login(user, password, driver)
+            print(':'.join(u[x]))
+        except:
+            ""
+
+
+def quickplay(u, driver, options):
+    user, password = u
+    login(user, password, driver, options["playlist"])
 
     while True:
         if(check_exists(By.CSS_SELECTOR, "#onetrust-accept-btn-handler", driver) == True):
@@ -116,8 +132,8 @@ def browser(options):
     if(options["headless"] == True):
         chrome_options.add_argument("--headless")
     driver = uc.Chrome(chrome_options)
+    sleep(2)
     if(options["headless"] == True):
-        sleep(2)
         driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
                                "source": """ Object.defineProperty(window, 'navigator', { value: new Proxy(navigator, { has: (target, key) => (key === 'webdriver' ? false : key in target), get: (target, key) => key === 'webdriver' ? false : typeof target[key] === 'function' ? target[key].bind(target) : target[key] }) }); """}, )
         driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": driver.execute_script(
@@ -128,15 +144,26 @@ def browser(options):
                                "source": "const newProto = navigator.__proto__;" "delete newProto.webdriver;" "navigator.__proto__ = newProto;"}, )
         driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
                                "source": """ Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] }); """},)
+    driver.delete_all_cookies()
+    driver.get("https://www.google.com/search?q=spotify")
+    sleep(2)
     return driver
 
 
-def start(options, playlist):
+def start(options, target):
     for x in range(0, int(options["threads"])):
-        u = options["userlist"][x].split(":")
-        if(len(u) != 2):
-            continue
-        user, password = u
-
-        Thread(target=quickplay, args=(user, password,
-               playlist, browser(options), options)).start()
+        if(target == testlogin):
+            if(x != int(options["threads"]) - 1):
+                i = (x * floor(len(options["userlist"]) / options["threads"]), (x+1) * floor(
+                    len(options["userlist"]) / options["threads"]) - 1)
+            else:
+                i = (x * floor(len(options["userlist"]) /
+                     options["threads"]), len(options["userlist"]))
+            u = [x.split("|")[0].split(":")
+                 for x in options["userlist"][i[0]:i[1]]]
+        else:
+            u = options["userlist"][x].split("|")[0].split(":")
+            if(len(u) != 2):
+                continue
+        Thread(target=target, args=(u,
+                                    browser(options), options)).start()
